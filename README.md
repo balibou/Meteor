@@ -9,14 +9,16 @@ All best practices for Meteor (in progress)
 
 - Always create at the root of your application 2 files: settings-development.json and settings-production.json to store API keys and other infos. Ignore these files in your version control !
 
-````{
+````
+{
   "public": {
     "publicInfo": "This is accessible on client"
   },
   "private": {
     "privateInfo": "This is accessible on server"
   }
-}````
+}
+````
 
 In your app, retrieve data with ``Meteor.settings.public.publicInfo``.
 
