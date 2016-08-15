@@ -10,7 +10,7 @@ Meteor Style Guide with best practices (in progress)
 
 - Always create at the root of your application 2 files: settings-development.json and settings-production.json to store API keys and other infos. Ignore these files in your version control !
 
-````
+````json
 {
   "public": {
     "publicInfo": "This is accessible on client"
@@ -29,7 +29,7 @@ Launch your meteor app with ``meteor --settings settings.json``.
 
 - Always remove the insecure package with ``meteor remove insecure`` and deny all the client-side updates:
 
-````
+````js
 // imports/api/tasks/tasks.js
 
 import { Mongo } from 'meteor/mongo';
@@ -50,7 +50,7 @@ Tasks.deny({
 ````
 - Use the validated-method package (in the example it works with the simple-schema package, but you can make it work with check too; have a look on the github repo !)
 
-````
+````js
 // imports/api/tasks/methods.js
 
 import { Meteor } from 'meteor/meteor';
@@ -72,7 +72,7 @@ export const insertTask = new ValidatedMethod({
 });
 ````
 
-````
+````js
 // imports/ui/components/add-task.js
 
 import React from 'react';
@@ -107,17 +107,17 @@ export const AddTask = () => (
   </FormGroup>
 );
 ````
-````
+````js
 // import/startup/server/api.js
 
 import '../../api/tasks/methods.js';
 ````
-````
+````js
 // import/startup/server/index.js
 
 import './api';
 ````
-````
+````js
 // server/main.js
 
 import '/imports/startup/server';
