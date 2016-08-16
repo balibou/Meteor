@@ -5,6 +5,7 @@ Meteor Style Guide with best practices (in progress)
 
 1. [Settings File](#settings file)
 2. [Methods](#methods)
+3. [Publications / Subscriptions](#publications / subscriptions)
 
 ## Settings File
 
@@ -109,16 +110,107 @@ export const AddTask = () => (
 ````
 ````js
 // import/startup/server/api.js
-
 import '../../api/tasks/methods.js';
 ````
 ````js
 // import/startup/server/index.js
-
 import './api';
 ````
 ````js
 // server/main.js
-
 import '/imports/startup/server';
+````
+
+## Publications / Subscriptions
+
+- Always remove the autopublish package with ``meteor remove autopublish``:
+
+````js
+// imports/api/tasks/server/publications.js
+import { Meteor } from 'meteor/meteor';
+import { Tasks } from '../tasks';
+
+Meteor.publish('tasks', () => Tasks.find());
+````
+
+````js
+// imports/startup/server/api.js
+import '../../api/tasks/server/publications.js';
+````
+
+- Use react-komposer package with ``npm i --save react-komposer`` to create container:
+
+````js
+// imports/ui/containers/tasks-list.js
+import { composeWithTracker } from 'react-komposer';
+import { Tasks } from '../../api/tasks/tasks.js';
+import { TasksList } from '../components/tasks-list.js';
+import { Loading } from '../components/loading.js';
+import { Meteor } from 'meteor/meteor';
+
+const composer = (params, onData) => {
+  const subscription = Meteor.subscribe('tasks');
+  if (subscription.ready()) {
+    const tasks = Tasks.find().fetch();
+    onData(null, { tasks });
+  }
+};
+
+export default composeWithTracker(composer, Loading)(TasksList);
+````
+
+````js
+// imports/ui/pages/tasks.js
+
+import React from 'react';
+import { Row, Col } from 'react-bootstrap';
+import TasksList from '../containers/tasks-list.js';
+
+export const Tasks = () => (
+  <Row>
+    <Col xs={ 12 }>
+      <TasksList />
+    </Col>
+  </Row>
+);
+````
+````js
+// imports/ui/components/task.js
+
+import React from 'react';
+import { Row, Col, ListGroupItem, FormControl, Button } from 'react-bootstrap';
+
+export const Task = ({ task }) => (
+  <ListGroupItem key={ task._id }>
+    <Row>
+      <Col xs={ 8 } sm={ 10 }>
+        <FormControl
+          type="text"
+          defaultValue={ task.title }
+        />
+      </Col>
+    </Row>
+  </ListGroupItem>
+);
+````
+
+````js
+// imports/ui/components/tasks-list.js
+
+import React from 'react';
+import { ListGroup, Alert } from 'react-bootstrap';
+import { Task } from './task.js';
+
+export const TasksList = ({ tasks }) => (
+  tasks.length > 0 ? <ListGroup className="tasks-list">
+    {tasks.map((tas) => (
+      <Task key={ tas._id } task={ tas } />
+    ))}
+  </ListGroup> :
+  <Alert bsStyle="warning">No task yet.</Alert>
+);
+
+TasksList.propTypes = {
+  tasks: React.PropTypes.array,
+};
 ````
